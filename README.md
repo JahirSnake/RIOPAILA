@@ -43,10 +43,11 @@ RIOPAILA/
 │   │   ├── chunks.json
 │   │   └── chunks_with_embeddings.json
 │
-├── scraping.py
-├── preprocessing.py
-├── generar_embeddings.py
-├── app.py
+├── src/
+│   └── scraping.py
+│   └── preprocessing.py
+│   └── generar_embeddings.py
+│   └── app.py
 │
 └── README.md
 ```
