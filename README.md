@@ -15,6 +15,7 @@ This project implements a **Retrieval-Augmented Generation (RAG)** system to ans
 * phi3
 * llama3
 * qwen3.5:2b
+* other models (based on your system specs)
 
 ### Embeddings
 
@@ -42,9 +43,9 @@ RIOPAILA/
 │   │   ├── chunks.json
 │   │   └── chunks_with_embeddings.json
 │
-├── scraper.py
-├── processor.py
-├── embeddings.py
+├── scraping.py
+├── preprocessing.py
+├── generar_embeddings.py
 ├── app.py
 │
 └── README.md
@@ -128,7 +129,7 @@ Built with Streamlit, featuring:
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/your-repo.git
+git clone https://github.com/your-username/RIOPAILA.git
 cd your-repo
 ```
 
@@ -168,19 +169,19 @@ ollama run qwen3.5:2b
 ### 1. Run scraping
 
 ```bash
-python scraper.py
+python scraping.py
 ```
 
 ### 2. Process data
 
 ```bash
-python processor.py
+python preprocessing.py
 ```
 
 ### 3. Generate embeddings
 
 ```bash
-python embeddings.py
+python generar_embeddings.py
 ```
 
 ### 4. Launch app
@@ -234,6 +235,9 @@ The system uses a strict prompt that:
 ## Author
 
 Developed as part of an AI / NLP academic project.
+-VALENTINA SIERRA
+-JAHIR GIRALDO
+-SEBASTIAN URQUIJO
 
 ---
 
