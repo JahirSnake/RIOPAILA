@@ -1,0 +1,134 @@
+[
+  {
+    "id": "faq_001",
+    "category": "empresa",
+    "question": "¿Qué es Riopaila Castilla?",
+    "keywords": [
+      "quienes son",
+      "qué es riopaila",
+      "empresa",
+      "compañía",
+      "organización"
+    ],
+    "answer": "Riopaila Castilla es una organización agroindustrial colombiana dedicada a la producción de alimentos, energía y combustibles renovables derivados principalmente de la caña de azúcar y la palma. La compañía desarrolla actividades agrícolas, industriales y comerciales con enfoque en sostenibilidad, innovación y generación de valor para sus grupos de interés y para contribuir al desarrollo sostenible del país.",
+    "source": ["https://www.riopaila-castilla.com/somos-riopaila-castilla/"]
+  },
+  {
+    "id": "faq_002",
+    "category": "contacto",
+    "question": "¿Cómo puedo contactar a Riopaila Castilla?",
+    "keywords": [
+      "contacto",
+      "contactar",
+      "comunicar",
+      "comunicarme",
+      "telefono",
+      "teléfono",
+      "correo",
+      "email",
+      "ubicacion",
+      "ubicación",
+      "direccion",
+      "dirección",
+      "donde quedan",
+      "cómo contactar",
+      "cómo puedo contactar"
+    ],
+    "answer": "Puedes comunicarte con Riopaila Castilla a través de la línea nacional gratuita 018000 941 941 o al teléfono (+57 602) 883 6018 en Cali. También se encuentra disponible el correo electrónico ventas@riopailacastilla.com para solicitudes y requerimientos institucionales. La sede principal está ubicada en la Carrera 1 #24-56, Edificio Colombina, en Santiago de Cali.\n\nPlanta Riopaila, ubicada en el Km 1 vía La Paila Zarzal, Valle del Cauca.\n\nPlanta Castilla, ubicada en el Km 30 vía Cali – Florida, Valle del Cauca.\n\nSanta Rosalia, ubicada en Finca El Milagro Vereda Pavanal, Vichada.\n\nAdicionalmente, los usuarios pueden diligenciar el formulario de contacto disponible en la sección “Contáctanos” del sitio web oficial para recibir atención por parte del equipo de la empresa.",
+    "source": ["https://www.riopaila-castilla.com/contactanos/"]
+  },
+  {
+    "id": "faq_003",
+    "category": "sostenibilidad",
+    "question": "¿Cuál es el compromiso de sostenibilidad y gestión ASG de Riopaila Castilla?",
+    "keywords": [
+      "sostenibilidad",
+      "asg",
+      "ambiental",
+      "social",
+      "gobernanza",
+      "compromiso ambiental"
+    ],
+    "answer": "Riopaila Castilla asume la sostenibilidad como un compromiso estratégico mediante su gestión ASG (Ambiental, Social y de Gobernanza). Este compromiso se centra en la creación de valor sostenible a largo plazo, integrando la protección de recursos naturales como el agua y el suelo, la acción frente al cambio climático y el impulso de prácticas de agricultura regenerativa. En el ámbito social, promueve el desarrollo territorial, el relacionamiento con comunidades y el abastecimiento responsable. En gobernanza, fortalece la ética, la transparencia y la gestión de riesgos bajo un enfoque de doble materialidad para la toma de decisiones.",
+    "source": ["https://www.riopaila-castilla.com/enfoque-asg/"]
+  },
+  {
+    "id": "faq_004",
+    "category": "historia",
+    "question": "¿Cuál es la historia de Riopaila Castilla?",
+    "keywords": [
+      "historia",
+      "trayectoria",
+      "nuestro camino",
+      "origen",
+      "fundación"
+    ],
+    "answer": "Riopaila Castilla nació en 1918 como un trapiche panelero en la Hacienda Riopaila, ubicada en La Paila, Zarzal, al norte del Valle del Cauca. Años después, con la inauguración del Ingenio Riopaila S.A., inició formalmente la producción industrial de azúcar. Paralelamente, Central Castilla S.A. surgió en Pradera, Valle, también como trapiche panelero antes de convertirse en ingenio azucarero. Con el tiempo, ambas compañías modernizaron sus operaciones, ampliaron su capacidad industrial y fortalecieron su presencia en el sector agroindustrial. En 2007, Riopaila Industrial y Castilla Industrial se fusionaron, dando origen a Riopaila Castilla S.A., hoy enfocada en alimentos, bioenergía y combustibles renovables.",
+    "source": ["https://www.riopaila-castilla.com/nuestro-camino/"]
+  },
+  {
+    "id": "faq_005",
+    "category": "ods",
+    "question": "¿Cómo contribuye Riopaila Castilla a los Objetivos de Desarrollo Sostenible (ODS)?",
+    "keywords": [
+      "ods",
+      "objetivos de desarrollo sostenible",
+      "onu",
+      "sostenibilidad",
+      "impacto social"
+    ],
+    "answer": "Riopaila Castilla contribuye a los Objetivos de Desarrollo Sostenible (ODS) mediante prácticas ambientales, producción sostenible, gestión eficiente del agua, agricultura regenerativa y proyectos sociales y comunitarios. La compañía aporta a ODS como:\n\n- Hambre cero (ODS 2).\n\n- Agua limpia y saneamiento (ODS 6).\n\n- Energía asequible y no contaminante (ODS 7).\n\n- Trabajo decente y crecimiento económico (ODS 8).\n\n- Industria, innovación e infraestructura (ODS 9).\n\n- Ciudades y comunidades sostenibles (ODS 11).\n\n- Producción y consumo responsables (ODS 12).\n\n- Acción por el clima (ODS 13).\n\n- Vida de ecosistemas terrestres (ODS 15).",
+    "source": ["https://www.riopaila-castilla.com/ods/"]
+  },
+  {
+    "id": "faq_006",
+    "category": "estrategia",
+    "question": "¿Cuál es el propósito superior y la visión de futuro de Riopaila Castilla?",
+    "keywords": [
+      "visión",
+      "propósito",
+      "estrategia",
+      "futuro",
+      "misión"
+    ],
+    "answer": "El propósito superior de Riopaila Castilla es generar bienestar y desarrollo sostenible mediante soluciones agroindustriales innovadoras. Su visión de futuro busca consolidar un modelo de negocio sostenible y competitivo, enfocado en la creación de valor económico, social y ambiental, la eficiencia operacional, la innovación y el fortalecimiento de relaciones con sus grupos de interés.",
+    "source": [
+        "https://www.riopaila-castilla.com/somos-riopaila-castilla/",
+        "https://www.riopaila-castilla.com/enfoque-asg/",
+        "https://www.riopaila-castilla.com/estrategia-de-negocio/"
+    ]  
+  },
+  {
+    "id": "faq_007",
+    "category": "energia",
+    "question": "¿Cómo contribuye Riopaila Castilla a la transición energética con energía verde?",
+    "keywords": [
+      "energía",
+      "energía verde",
+      "etanol",
+      "transición energética",
+      "energías renovables"
+    ],
+    "answer": "Riopaila Castilla contribuye a la transición energética mediante la cogeneración de energía renovable a partir del bagazo de caña, un subproducto agroindustrial utilizado como biomasa. Este modelo permite el autoabastecimiento energético de sus plantas y la entrega de excedentes a la red eléctrica nacional, promoviendo la economía circular y la reducción de emisiones de CO₂. Además, la compañía fortalece la diversificación energética del país mediante la producción de etanol carburante y el aprovechamiento de Fuentes No Convencionales de Energía Renovable (FNCER).",
+    "source": [
+        "https://www.riopaila-castilla.com/energia/", 
+        "https://www.riopaila-castilla.com/178-670-mwh-ano-de-energia-renovable-suministra-riopaila-castilla-al-pais/",
+        "https://www.riopaila-castilla.com/con-su-apuesta-por-la-produccion-de-energia-riopaila-castilla-abastece-a-cerca-de-110-mil-colombianos/"
+    ]    
+  },
+  {
+    "id": "faq_008",
+    "category": "estrategia",
+    "question": "¿Cual es la misión y visión de Riopaila Castilla?",
+    "keywords": [
+      "misión",
+      "visión",
+      "principios",
+      "cual es la misión",
+      "cual es la visión",
+      "cuales son los principios"
+    ],
+    "answer": "La misión de Riopaila Castilla es generar valor compartido impulsando el desarrollo y la transformación sostenible de toda la cadena agroindustrial, trabajando de manera responsable con sus grupos de interés.\n\nSu visión es consolidarse como un referente de la agroindustria en Latinoamérica por la creación de valor compartido.\n\nSus principios son:\n\n- Actuamos con integridad: Actuamos siempre con ética, honestidad y transparencia.\n\n- Somos comprometidos y disciplinados: Entregamos resultados excepcionales, honrando siempre nuestros compromisos.\n\n- Nos adaptamos al cambio: Nos anticipamos y adaptamos rápidamente al entorno. \n\n- Cooperamos entre todos: Trabajamos de forma colaborativa e innovadora para lograr mejora continua y mejores prácticas operacionales. \n\n- Creamos valor compartido: Operamos de forma sostenible, generando valor económico, social y ambiental. \n\n- Cuidamos a nuestra gente: Nos aseguramos de cuidar, respetar y desarrollar a nuestra gente.",
+    "source": ["https://www.riopaila-castilla.com/estrategia-de-negocio/" ]
+  }
+]

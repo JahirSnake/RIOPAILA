@@ -79,7 +79,7 @@ if __name__ == "__main__":
         time.sleep(0.5)
 
     # guardar
-    with open("C:/Users/jahir/OneDrive/Desktop/Taller 1 TAAML/RIOPAILA/data/raw/Riopaila.txt", "w", encoding="utf-8") as f:
+    with open("RUTA DONDE SE VA A GUARDAR SCRAPPING.TXT", "w", encoding="utf-8") as f:
         f.write(all_text)
 
     print("Scraping completo")

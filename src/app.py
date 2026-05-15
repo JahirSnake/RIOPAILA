@@ -1,305 +1,256 @@
 import streamlit as st
-import json
-import requests
-import numpy as np
+from ai_models import AIModels
 
 # ---------------------------
 # CONFIGURACIÓN
 # ---------------------------
-st.set_page_config(page_title="Chat Riopaila Castilla", page_icon="🌱")
-
-# ---------------------------
-# Cargar chunks
-# ---------------------------
-@st.cache_data
-def load_chunks(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
-
-chunks = load_chunks("C:/Users/jahir/OneDrive/Desktop/Taller 1 TAAML/RIOPAILA/data/processed/chunks_with_embeddings.json")
-
-# ---------------------------
-# Preprocesamiento (UNA VEZ)
-# ---------------------------
-@st.cache_data
-def preprocess_chunks(chunks):
-    for chunk in chunks:
-        chunk["text_lower"] = chunk["text"].lower()
-    return chunks
-
-chunks = preprocess_chunks(chunks)
-
-# ---------------------------
-# Buscar chunks relevantes
-# ---------------------------
-
-#def get_relevant_chunks(question, chunks, top_k=2):
-
-#    question_words = question.lower().split()
-
-#    scored_chunks = []
-
-#    for chunk in chunks:
-#        text = chunk["text"].lower()
-
-        # score base
-#        score = sum(word in text for word in question_words)
-
-        # boost si contiene varias palabras
-#        if score >= 2:
-#            score += 2
-
-        #if score > 0:
-        #    scored_chunks.append((score, chunk))
-
-#        if score >= 1:
-#            if score >= 2:
-#                score += 2
-#            scored_chunks.append((score, chunk))
-
-#    scored_chunks.sort(key=lambda x: x[0], reverse=True)
-
-#    return [chunk for score, chunk in scored_chunks[:top_k]]
-    
-#def get_relevant_chunks(question, chunks, top_k=2):
-
-#    question_words = question.lower().split()
-
-#    scored_chunks = []
-
-#    for chunk in chunks:
-#        text = chunk["text_lower"]
-
-        # score más eficiente
-#        score = 0
-#        for word in question_words:
-#            if word in text:
- #               score += 1
-
-        # boost inteligente
-#        if score >= 2:
-#            score += 2
-
- #       if score > 0:
-#            scored_chunks.append((score, chunk))
-
-    # más rápido que sort completo
-#    scored_chunks = sorted(scored_chunks, key=lambda x: x[0], reverse=True)[:top_k]
-
-#    return [chunk for score, chunk in scored_chunks]
-
-
-
-def cosine_similarity(a, b):
-    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
-
-
-def get_embedding(text):
-    response = requests.post(
-        "http://localhost:11434/api/embeddings",
-        json={
-            "model": "nomic-embed-text",
-            "prompt": text
-        }
-    )
-    return response.json()["embedding"]
-
-
-def get_relevant_chunks(question, chunks, top_k=3):
-
-    question_embedding = get_embedding(question)
-
-    scored_chunks = []
-
-    for chunk in chunks:
-        score = cosine_similarity(question_embedding, chunk["embedding"])
-        scored_chunks.append((score, chunk))
-
-    scored_chunks.sort(key=lambda x: x[0], reverse=True)
-
-    return [chunk for score, chunk in scored_chunks[:top_k]]
-
-
-# ---------------------------
-# Construir contexto
-# ---------------------------
-#def build_context(relevant_chunks):
-
-#    context = ""
-
-#    for chunk in relevant_chunks:
-#        context += f"\nFuente: {chunk['source']}\n"
-#        context += chunk["text"] + "\n"
-
-#    return context
-
-def build_context(relevant_chunks):
-
-    context = ""
-
-    for chunk in relevant_chunks:
-        context += f"\nFuente: {chunk['source']}\n{chunk['text']}\n"
-
-    return context[:2000]  #recorte seguro al final
-
-
-
-
-# ---------------------------
-# Llamar a Ollama
-# ---------------------------
-def ask_ollama(prompt):
-    
-    response = requests.post(
-    "http://localhost:11434/api/generate",
-    json={
-        "model": "phi3:mini",
-        "prompt": prompt,
-        "stream": False,
-        "options": {
-            "temperature": 0.2,
-            "num_predict": 150,
-            "stop": ["\n\nFuente:", "Fuente:"]
-        }
-    }
-    )
-  
-    data = response.json()
-
-    if "response" not in data:
-        return "Error generando respuesta"
-
-    return data["response"]
-
-
-# ---------------------------
-# Prompt
-# ---------------------------
-SYSTEM_PROMPT = """
-Eres un asistente virtual corporativo de la empresa Riopaila Castilla.
-
-Tu función es responder preguntas de usuarios utilizando EXCLUSIVAMENTE la información proporcionada en el contexto.
-
-OBJETIVO:
-Brindar respuestas claras, precisas y profesionales sobre la empresa, sin inventar información.
-
-REGLAS ESTRICTAS:
-- Usa únicamente la información del contexto
-- No inventes información
-- No agregues conocimiento externo.
-- No hagas suposiciones ni completes información faltante.
-- Si la respuesta no está en el contexto, responde exactamente:
-  "No tengo información sobre eso"
-
-FORMATO DE RESPUESTA:
-- Responde en máximo 5 líneas.
-- Usa lenguaje claro, profesional y directo.
-- No repitas la pregunta.
-- No incluyas código, símbolos innecesarios ni explicaciones del proceso.
-- No incluyas fuentes ni enlaces en la respuesta.
-
-COMPORTAMIENTO INTELIGENTE:
-- Si la pregunta es ambigua, responde con la información más relevante disponible en el contexto.
-- Si hay múltiples datos, sintetiza la información en una respuesta coherente.
-- Prioriza información concreta (fechas, cifras, actividades, productos).
-
-CONTROL DE CALIDAD:
-Antes de responder, valida mentalmente:
-1. ¿La respuesta está en el contexto?
-2. ¿Estoy agregando algo que no aparece explícitamente?
-3. ¿La respuesta es clara y breve?
-
-Si alguna respuesta es NO → responde:
-"No tengo información sobre eso"
-
-Contexto:
-{context}
-"""
-
-
-# ---------------------------
-# Función principal
-# ---------------------------
-
-def answer_question(question, top_k):
-
-    relevant_chunks = get_relevant_chunks(question, chunks, top_k=top_k)
-    context = build_context(relevant_chunks)
-
-    prompt = SYSTEM_PROMPT.format(context=context)
-    prompt += f"\n\nPregunta: {question}\nRespuesta:"
-
-    response = ask_ollama(prompt)
-
-    sources = [chunk["source"] for chunk in relevant_chunks]
-
-    return response, sources
-
-
-
-# ---------------------------
-# INTERFAZ
-# ---------------------------
-
-st.title("Chat Riopaila Castilla")
-st.markdown("Haz preguntas sobre la empresa")
-
-st.sidebar.title("Modo de respuesta")
-
-modo = st.sidebar.radio(
-    "Selecciona el nivel:",
-    ["Rápido", "Pro", "Pensamiento profundo"]
+st.set_page_config(
+    page_title="Asistente Riopaila Castilla",
+    page_icon="🌿",
+    layout="wide"
 )
 
-# Mapear modo → chunks
-if modo == "Rápido":
-    top_k = 2
-elif modo == "Pro":
-    top_k = 4
-else:
-    top_k = 8
+# ---------------------------
+# CSS
+# ---------------------------
+st.markdown("""
+<style>
 
-# historial
+/* Fondo y texto general */
+.stApp {
+    background-color: #FFFFFF;
+    color: #294221;
+}
+
+/* Header superior corporativo */
+header[data-testid="stHeader"] {
+    background: linear-gradient(90deg, #294221 0%, #17979C 100%);
+}
+
+/* Sidebar */
+[data-testid="stSidebar"] {
+    background-color: #F4F7F6 !important;
+    border-right: 2px solid #9EBD70;
+}
+
+[data-testid="stSidebar"] .stMarkdown,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] p {
+    color: #294221 !important;
+    font-weight: 600 !important;
+}
+
+/* Títulos */
+.brand-title {
+    color: #294221;
+    font-family: 'Arial Black', sans-serif;
+    font-size: 24px;
+    letter-spacing: -1px;
+    border-bottom: 3px solid #9EBD70;
+    margin-bottom: 20px;
+}
+
+.brand-subtitle {
+    color: #17979C;
+    font-size: 12px;
+    text-transform: uppercase;
+    margin-top: -15px;
+    margin-bottom: 25px;
+}
+
+/* Botones */
+.stButton>button {
+    border-radius: 10px;
+    border: 2px solid #9EBD70;
+    color: #294221;
+    background-color: white;
+    font-weight: 500;
+    min-height: 70px;
+    width: 100%;
+    transition: all 0.3s ease;
+}
+
+.stButton>button:hover {
+    background-color: #F1F8F6;
+    border-color: #17979C;
+    transform: translateY(-2px);
+}
+
+/* Chat */
+.stChatMessage {
+    background-color: #F8FAF9 !important;
+    border-radius: 15px !important;
+    border: 1px solid #E0EADD !important;
+    margin-bottom: 10px;
+}
+
+.stSpinner > div > div {
+    color: #294221 !important;
+    font-weight: bold !important;
+}
+
+.stChatMessage p {
+    color: #294221 !important;
+}
+            
+section[data-testid="stSidebar"] button {
+    font-size: 13px !important;
+    text-align: left !important;
+    min-height: 55px !important;
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------------------
+# MODELO IA
+# ---------------------------
+ai = AIModels()
+
+# ---------------------------
+# SIDEBAR
+# ---------------------------
+with st.sidebar:
+
+    st.markdown(
+        '<div class="brand-title">RIOPAILA CASTILLA</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown(
+        '<div class="brand-subtitle">Agroindustria Sostenible</div>',
+        unsafe_allow_html=True
+    )
+
+    st.markdown("### Configuración")
+
+    modo = st.selectbox(
+        "Profundidad de búsqueda",
+        ["Análisis Estándar", "Análisis Exhaustivo"]
+    )
+
+    top_k = 6 if "Estándar" in modo else 12
+
+    st.markdown("---")
+
+    st.info(
+        "Asistente corporativo inteligente con recuperación híbrida de información."
+    )
+    if st.button("Limpiar conversación"):
+        st.session_state.messages = []
+        ai.save_memory([])
+
+        st.rerun()
+
+    st.markdown("---")
+
+    st.markdown("### Preguntas frecuentes")
+
+    faq_questions = [
+        "¿Qué es Riopaila Castilla?",
+        "¿Cómo puedo contactar a Riopaila Castilla?",
+        "¿Cuál es el compromiso de sostenibilidad y gestión ASG?",
+        "¿Cuál es la historia de Riopaila Castilla?",
+        "¿Cómo contribuye Riopaila Castilla a los ODS?",
+        "¿Cuál es el propósito superior y visión de futuro?",
+        "¿Cómo contribuye a la transición energética?",
+        "¿Cuál es la misión y visión de Riopaila Castilla?"
+    ]
+
+    faq_clicked = None
+
+    for idx, faq in enumerate(faq_questions):
+
+        if st.button(
+            faq,
+            key=f"faq_sidebar_{idx}",
+            use_container_width=True
+        ):
+            faq_clicked = faq
+
+# ---------------------------
+# MAIN
+# ---------------------------
+st.markdown(
+    "<h1 style='text-align: center;'>Asistente Estratégico Corporativo</h1>",
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    "<p style='text-align: center; color: #17979C;'>Consulta inteligente de información institucional</p>",
+    unsafe_allow_html=True
+)
+
+# ---------------------------
+# HISTORIAL
+# ---------------------------
 if "messages" not in st.session_state:
-    st.session_state.messages = []
+    st.session_state.messages = ai.load_memory()
 
-# mostrar historial
-for msg in st.session_state.messages:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["content"])
+for m in st.session_state.messages:
 
-# input usuario
-if question := st.chat_input("Escribe tu pregunta..."):
+    with st.chat_message(
+        m["role"],
+        avatar="🎋" if m["role"] == "assistant" else "👤"
+    ):
+        st.markdown(m["content"])
 
-    if len(question.strip()) < 3:
-        st.warning("Escribe una pregunta más clara")
-        st.stop()
+# ---------------------------
+# INPUT
+# ---------------------------
+query = st.chat_input(
+    "¿Qué desea consultar sobre Riopaila Castilla?"
+)
 
-    # mostrar usuario
-    st.session_state.messages.append({"role": "user", "content": question})
+final_query = faq_clicked if faq_clicked else query
 
-    with st.chat_message("user"):
-        st.markdown(question)
+# ---------------------------
+# RESPUESTA
+# ---------------------------
+if final_query:
 
-    # generar respuesta
-    with st.chat_message("assistant"):
-        with st.spinner("Pensando..."):
+    if (
+        len(st.session_state.messages) == 0
+        or st.session_state.messages[-1]["content"] != final_query
+    ):
 
-            answer, sources = answer_question(question, top_k)
-            #answer, sources = answer_question(question)
+        st.session_state.messages.append({
+            "role": "user",
+            "content": final_query
+        })
 
-            st.markdown(answer)
+    with st.chat_message("user", avatar="👤"):
+        st.markdown(final_query)
 
-            # mostrar fuentes
-            with st.expander("Fuentes"):
-                for s in sources:
-                    st.write(s)
+    with st.chat_message("assistant", avatar="🎋"):
 
-    st.session_state.messages.append({
-        "role": "assistant",
-        "content": answer
-    })
+        with st.spinner(
+            "Analizando documentos y preparando respuesta..."
+        ):
 
+            try:                
+                ans, src = ai.answer_question(
+                    final_query,
+                    top_k,
+                    st.session_state.messages
+                )
 
+                st.markdown(ans)
 
-    
+                if src:
+                    with st.expander("Fuentes documentales"):
+                        for s in src:
+                            st.write(f"• {s}")
+
+                st.session_state.messages.append({
+                    "role": "assistant",
+                    "content": ans
+                })
+                ai.save_memory(
+                    st.session_state.messages
+                )
+
+            except Exception:
+                st.error(
+                    "Error de conexión con el motor de IA local."
+                )                   
