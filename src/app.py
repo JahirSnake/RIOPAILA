@@ -1,5 +1,7 @@
 import streamlit as st
 from ai_models import AIModels
+from datetime import datetime
+import time
 
 # ---------------------------
 # CONFIGURACIÓN
@@ -89,7 +91,11 @@ header[data-testid="stHeader"] {
     font-weight: bold !important;
 }
 
-.stChatMessage p {
+.stChatMessage {
+    color: #294221 !important;
+}
+
+.stChatMessage * {
     color: #294221 !important;
 }
             
@@ -172,7 +178,7 @@ with st.sidebar:
 # MAIN
 # ---------------------------
 st.markdown(
-    "<h1 style='text-align: center;'>Asistente Estratégico Corporativo</h1>",
+    "<h1 style='text-align: center;'>Asistente Estratégico Corporativo Riopaila Castilla</h1>",
     unsafe_allow_html=True
 )
 
@@ -185,6 +191,7 @@ st.markdown(
 # HISTORIAL
 # ---------------------------
 if "messages" not in st.session_state:
+    #st.session_state.messages = []
     st.session_state.messages = ai.load_memory()
 
 for m in st.session_state.messages:
@@ -216,8 +223,15 @@ if final_query:
 
         st.session_state.messages.append({
             "role": "user",
-            "content": final_query
+            "content": final_query,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         })
+
+
+        # st.session_state.messages.append({
+        #     "role": "user",
+        #     "content": final_query
+        # })
 
     with st.chat_message("user", avatar="👤"):
         st.markdown(final_query)
@@ -228,11 +242,16 @@ if final_query:
             "Analizando documentos y preparando respuesta..."
         ):
 
-            try:                
+            try:
+                start_time = time.time()                
                 ans, src = ai.answer_question(
                     final_query,
                     top_k,
                     st.session_state.messages
+                )
+                response_time = round(
+                    time.time() - start_time,
+                    2
                 )
 
                 st.markdown(ans)
@@ -242,15 +261,23 @@ if final_query:
                         for s in src:
                             st.write(f"• {s}")
 
+                # st.session_state.messages.append({
+                #     "role": "assistant",
+                #     "content": ans
+                # })
+                
+
                 st.session_state.messages.append({
                     "role": "assistant",
-                    "content": ans
+                    "content": ans,
+                    "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                    "response_time_seconds": response_time
                 })
+
+                ai.save_memory(st.session_state.messages)
                 ai.save_memory(
                     st.session_state.messages
                 )
 
-            except Exception:
-                st.error(
-                    "Error de conexión con el motor de IA local."
-                )                   
+            except Exception as e:
+                st.error(f"Error: {e}")

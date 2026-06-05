@@ -6,9 +6,9 @@
     "keywords": [
       "quienes son",
       "qué es riopaila",
-      "empresa",
-      "compañía",
-      "organización"
+      "que es la empresa",
+      "que es la compañía",
+      "que es la organización"
     ],
     "answer": "Riopaila Castilla es una organización agroindustrial colombiana dedicada a la producción de alimentos, energía y combustibles renovables derivados principalmente de la caña de azúcar y la palma. La compañía desarrolla actividades agrícolas, industriales y comerciales con enfoque en sostenibilidad, innovación y generación de valor para sus grupos de interés y para contribuir al desarrollo sostenible del país.",
     "source": ["https://www.riopaila-castilla.com/somos-riopaila-castilla/"]
@@ -43,8 +43,7 @@
     "question": "¿Cuál es el compromiso de sostenibilidad y gestión ASG de Riopaila Castilla?",
     "keywords": [
       "sostenibilidad",
-      "asg",
-      "ambiental",
+      "asg",      
       "social",
       "gobernanza",
       "compromiso ambiental"
@@ -74,7 +73,7 @@
       "ods",
       "objetivos de desarrollo sostenible",
       "onu",
-      "sostenibilidad",
+      "objetivos de sostenibilidad",
       "impacto social"
     ],
     "answer": "Riopaila Castilla contribuye a los Objetivos de Desarrollo Sostenible (ODS) mediante prácticas ambientales, producción sostenible, gestión eficiente del agua, agricultura regenerativa y proyectos sociales y comunitarios. La compañía aporta a ODS como:\n\n- Hambre cero (ODS 2).\n\n- Agua limpia y saneamiento (ODS 6).\n\n- Energía asequible y no contaminante (ODS 7).\n\n- Trabajo decente y crecimiento económico (ODS 8).\n\n- Industria, innovación e infraestructura (ODS 9).\n\n- Ciudades y comunidades sostenibles (ODS 11).\n\n- Producción y consumo responsables (ODS 12).\n\n- Acción por el clima (ODS 13).\n\n- Vida de ecosistemas terrestres (ODS 15).",
@@ -85,8 +84,8 @@
     "category": "estrategia",
     "question": "¿Cuál es el propósito superior y la visión de futuro de Riopaila Castilla?",
     "keywords": [
-      "visión",
-      "propósito",
+      "visión de futuro",
+      "cual es el propósito",
       "estrategia",
       "futuro",
       "misión"
@@ -103,7 +102,6 @@
     "category": "energia",
     "question": "¿Cómo contribuye Riopaila Castilla a la transición energética con energía verde?",
     "keywords": [
-      "energía",
       "energía verde",
       "etanol",
       "transición energética",
@@ -121,14 +119,89 @@
     "category": "estrategia",
     "question": "¿Cual es la misión y visión de Riopaila Castilla?",
     "keywords": [
-      "misión",
-      "visión",
-      "principios",
       "cual es la misión",
       "cual es la visión",
-      "cuales son los principios"
+      "cuales son los principios"      
     ],
     "answer": "La misión de Riopaila Castilla es generar valor compartido impulsando el desarrollo y la transformación sostenible de toda la cadena agroindustrial, trabajando de manera responsable con sus grupos de interés.\n\nSu visión es consolidarse como un referente de la agroindustria en Latinoamérica por la creación de valor compartido.\n\nSus principios son:\n\n- Actuamos con integridad: Actuamos siempre con ética, honestidad y transparencia.\n\n- Somos comprometidos y disciplinados: Entregamos resultados excepcionales, honrando siempre nuestros compromisos.\n\n- Nos adaptamos al cambio: Nos anticipamos y adaptamos rápidamente al entorno. \n\n- Cooperamos entre todos: Trabajamos de forma colaborativa e innovadora para lograr mejora continua y mejores prácticas operacionales. \n\n- Creamos valor compartido: Operamos de forma sostenible, generando valor económico, social y ambiental. \n\n- Cuidamos a nuestra gente: Nos aseguramos de cuidar, respetar y desarrollar a nuestra gente.",
     "source": ["https://www.riopaila-castilla.com/estrategia-de-negocio/" ]
+  },
+  {
+    "id": "faq_009",
+    "category": "empresa",
+    "question": "¿Qué hacen en Riopaila Castilla?",
+    "keywords": [
+      "que hacen alla",
+      "y que hacen alla",
+      "a que se dedican",
+      "que productos producen",
+      "que hacen",
+      "cual es su actividad",
+      "actividad economica",
+      "a que se dedica la empresa"
+    ],
+    "answer": "Riopaila Castilla es un grupo agroindustrial colombiano con más de 100 años de experiencia dedicado a transformar la tierra en alimento (azúcar, mieles, jarabes, mezclas, aceite de palma y ganadería), energía verde (cogeneración) y combustible renovable (alcohol carburante). Sus operaciones abarcan las actividades agrícolas, industriales y comerciales para la producción y comercialización de estos productos, siempre promoviendo el desarrollo sostenible.",
+    "source": ["https://www.riopaila-castilla.com/somos-riopaila-castilla/"]
+  },
+  {
+    "id": "faq_010",
+    "category": "gobierno",
+    "question": "¿Quién es el presidente de Riopaila Castilla?",
+    "keywords": [
+      "presidente",
+      "presidente ejecutivo",
+      "quien es el presidente",
+      "quien es el gerente",
+      "representante legal",
+      "cual es el nombre del presidente",
+      "director ejecutivo"
+    ],
+    "answer": "El Presidente Ejecutivo (CEO) del Grupo Riopaila Castilla es Pedro Enrique Cardona.",
+    "source": ["https://www.riopaila-castilla.com/rechazo-por-ataques-a-cultivos-agricolas/"]
+  },
+  {
+    "id": "faq_011",
+    "category": "historia",
+    "question": "¿Cuándo se fundó Riopaila Castilla?",
+    "keywords": [
+      "cuando se fundo",
+      "cuando se fundó",
+      "año de fundacion",
+      "año de fundación",
+      "en que año se fundó",
+      "en que año se fundo",
+      "desde cuando existe",
+      "cuando empezó",
+      "cuando empezo",
+      "cuantos años tiene",
+      "origen",
+      "fundación",
+      "fundacion"
+    ],
+    "answer": "Riopaila Castilla nació en 1918 como un trapiche panelero en la Hacienda Riopaila, ubicada en La Paila, Zarzal, al norte del Valle del Cauca. En 2007, Riopaila Industrial y Castilla Industrial se fusionaron, dando origen a Riopaila Castilla S.A. La compañía cuenta con más de 100 años de trayectoria en el sector agroindustrial.",
+    "source": ["https://www.riopaila-castilla.com/nuestro-camino/"]
+  },
+  {
+    "id": "faq_012",
+    "category": "contacto",
+    "question": "¿En dónde están ubicados?",
+    "keywords": [
+      "donde estan ubicados",
+      "donde están ubicados",
+      "en donde estan",
+      "en donde están",
+      "ubicacion",
+      "ubicación",
+      "direccion",
+      "dirección",
+      "donde quedan",
+      "donde queda",
+      "sede principal",
+      "direccion de la empresa",
+      "donde esta la empresa",
+      "donde está la empresa"
+    ],
+    "answer": "Riopaila Castilla tiene varias sedes:\n\n- Sede Principal: Carrera 1 #24-56, Edificio Colombina (antes Belmonte), piso 7. Santiago de Cali, Colombia.\n- Planta Riopaila (La Paila): Km. 1 vía La Paila – Zarzal, Valle del Cauca.\n- Planta Castilla (Florida): Km 30 Vía Cali – Florida frente a San Antonio de los Caballeros, Valle del Cauca.\n- Santa Rosalía – Vichada: Finca El Milagro – Vereda Pavanal, Vichada.\n\nTambién puede contactar a través de la línea gratuita 018000 941 941 o al teléfono (+57 602) 883 6018.",
+    "source": ["https://www.riopaila-castilla.com/contactanos/"]
   }
 ]

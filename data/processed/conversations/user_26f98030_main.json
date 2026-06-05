@@ -1,0 +1,22 @@
+[
+  {
+    "role": "user",
+    "content": "que es riopaila?",
+    "timestamp": "2026-05-23T14:42:45.609964"
+  },
+  {
+    "role": "assistant",
+    "content": "Riopaila Castilla es una organización agroindustrial colombiana dedicada a la producción de alimentos, energía y combustibles renovables, principalmente derivados de la caña de azúcar y la palma. La compañía desarrolla actividades agrícolas, industriales y comerciales con un enfoque en sostenibilidad, innovación y generación de valor para sus grupos de interés y para contribuir al desarrollo sostenible del país.",
+    "timestamp": "2026-05-23T14:42:48.366799"
+  },
+  {
+    "role": "user",
+    "content": "y que hacen alla?",
+    "timestamp": "2026-05-23T14:42:57.127069"
+  },
+  {
+    "role": "assistant",
+    "content": "Riopaila Castilla es un grupo agroindustrial colombiano con más de 100 años de experiencia. Se dedican a transformar la tierra en alimento (azúcar, mieles, jarabes, mezclas, aceite de palma y ganadería), energía verde (cogeneración) y combustible renovable (alcohol carburante). Sus operaciones abarcan las actividades agrícolas, industriales y comerciales para la producción y comercialización de estos productos, siempre promoviendo el desarrollo sostenible.",
+    "timestamp": "2026-05-23T14:42:59.727524"
+  }
+]

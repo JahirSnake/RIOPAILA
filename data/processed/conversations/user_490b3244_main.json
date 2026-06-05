@@ -1,0 +1,12 @@
+[
+  {
+    "role": "user",
+    "content": "Hola me llamo Jahir, quiero saber que es riopaila?",
+    "timestamp": "2026-05-28T12:20:51.705570"
+  },
+  {
+    "role": "assistant",
+    "content": "Hola Jahir, Riopaila Castilla es una organización agroindustrial colombiana que se dedica a la producción de alimentos, energía y combustibles renovables, principalmente a partir de la caña de azúcar y la palma. Desarrollan actividades agrícolas, industriales y comerciales con un fuerte enfoque en la sostenibilidad, la innovación y la generación de valor.",
+    "timestamp": "2026-05-28T12:20:55.428275"
+  }
+]

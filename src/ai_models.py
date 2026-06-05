@@ -1,23 +1,90 @@
 import json
+import os
 import requests
 import numpy as np
+import unicodedata
 import google.generativeai as genai
+from dotenv import load_dotenv
+
+from datetime import datetime
+import time
+
+from pathlib import Path
 
 
 class AIModels:
 
+# ---------------------------------------------------
+# CONFIGURACIÓN GENERAL DEL MODELO (GEMINI + PATHS)
+# ---------------------------------------------------
+
     def __init__(self):
 
-        genai.configure(api_key="API AQUI")
-
+        load_dotenv()
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
         self.model = genai.GenerativeModel("gemini-2.5-flash")
 
+
+        base_path = Path(__file__).resolve().parent.parent
+
         self.chunks = self.load_chunks(
-            "RUTA A EMBEDDINGS"
+            base_path / "data/processed/chunks_embeddings.json"
         )
+
         self.faqs = self.load_faqs(
-            "RUTA A FAQ"
+            base_path / "data/processed/chunks_faq.json"
         )
+
+# ---------------------------------------------------
+# MANEJO DE MEMORIA DEL CHAT (PERSISTENCIA JSON)
+# ---------------------------------------------------    
+
+    def load_memory(self):
+        base_path = Path(__file__).resolve().parent.parent
+        memory_path = (
+            base_path / "data/processed/chat_memory.json"
+        )
+
+        try:
+            if memory_path.exists():
+                with open(
+                    memory_path,
+                    "r",
+                    encoding="utf-8"
+                ) as f:
+                    return json.load(f)
+
+        except Exception as e:
+            print(f"Error cargando memoria: {e}")
+
+        return []
+
+    def save_memory(self, messages):
+        base_path = Path(__file__).resolve().parent.parent
+        memory_path = (
+            base_path / "data/processed/chat_memory.json"
+        )
+
+        try:
+            with open(
+                memory_path,
+                "w",
+                encoding="utf-8"
+            ) as f:
+
+                json.dump(
+                    messages,
+                    f,
+                    ensure_ascii=False,
+                    indent=4
+                )
+
+        except Exception as e:
+            print(f"Error guardando memoria: {e}")    
+
+# ---------------------------------------------------
+# CARGA DE BASE DOCUMENTAL (CHUNKS + EMBEDDINGS)
+# ---------------------------------------------------      
 
     def load_chunks(self, path):
 
@@ -51,17 +118,21 @@ class AIModels:
 
         except Exception as e:
             print(f"Error cargando FAQs: {e}")
-            return []    
+            return []   
+
+# ---------------------------------------------------
+# EMBEDDINGS Y NORMALIZACIÓN DE TEXTO
+# --------------------------------------------------- 
 
     def get_embedding(self, text):
         try:
             response = requests.post(
                 "http://localhost:11434/api/embeddings",
                 json={
-                    "model": "nomic-embed-text",
+                    "model": "mxbai-embed-large",
                     "prompt": text
                 },
-                timeout=30
+                timeout=60
             )
 
             response.raise_for_status()
@@ -71,6 +142,24 @@ class AIModels:
         except Exception as e:
             print(f"Error generando embedding: {e}")
             return None
+        
+    def normalize_text(self, text):
+        text = text.lower().strip()
+        text = unicodedata.normalize(
+            'NFD',
+            text
+        )
+
+        text = ''.join(
+            c for c in text
+            if unicodedata.category(c) != 'Mn'
+        )
+
+        return text    
+    
+# ---------------------------------------------------
+# MÉTRICAS DE SIMILITUD SEMÁNTICA
+# ---------------------------------------------------
 
     def cosine_similarity(self, a, b):
 
@@ -80,39 +169,30 @@ class AIModels:
         if a_norm == 0 or b_norm == 0:
             return 0
 
-        return np.dot(a, b) / (a_norm * b_norm)
+        #return np.dot(a, b) / (a_norm * b_norm)
+        return np.dot(a, b)
     
-    def load_memory(self):
-        try:
-            with open(
-                "data/chat_memory.json",
-                "r",
-                encoding="utf-8"
-            ) as f:
+    STOPWORDS = {
+        "que",
+        "como",
+        "cual",
+        "cuál",
+        "donde",
+        "qué",
+        "cómo",
+        "empresa",
+        "riopaila",
+        "castilla"
+    }
 
-                return json.load(f)
-
-        except:
-            return []
-        
-    def save_memory(self, messages):
-        with open(
-            "data/chat_memory.json",
-            "w",
-            encoding="utf-8"
-        ) as f:
-            messages = messages[-20:]
-
-            json.dump(
-                messages,
-                f,
-                ensure_ascii=False,
-                indent=2
-            )
+# ---------------------------------------------------
+# SISTEMA DE FAQ (MATCH RÁPIDO SIN LLM)
+# ---------------------------------------------------
     
     def get_faq_answer(self, question):
 
-        question_lower = question.lower().strip()
+        question_lower = self.normalize_text(question)
+        question_words = question_lower.split()
 
         best_match = None
         best_score = 0
@@ -121,27 +201,45 @@ class AIModels:
 
             score = 0
 
-            # comparar contra question FAQ
-            faq_question = faq["question"].lower()
+            faq_question = self.normalize_text(
+                faq["question"]
+            )
 
-            if faq_question in question_lower:
-                score += 5
+            faq_words = faq_question.split()
 
-            # keywords
+            common_words = (
+                set(question_words) &
+                set(faq_words)
+            )
+
+            score += len(common_words)
+
+            # match exacto pregunta completa
+            if faq_question == question_lower:
+                score += 10
+
             for keyword in faq.get("keywords", []):
 
-                keyword = keyword.lower().strip()
+                keyword = self.normalize_text(keyword)
 
-                # SOLO coincidencias completas relevantes
+                keyword_words = keyword.split()
+
+                matches = sum(
+                    word in question_words
+                    for word in keyword_words
+                    if len(word) > 4
+                    and word not in self.STOPWORDS
+                )
+
+                score += matches
+
                 if keyword in question_lower:
                     score += 3
 
-            # evitar falsos positivos
             if score > best_score:
                 best_score = score
                 best_match = faq
 
-        # umbral más estricto
         if best_match and best_score >= 3:
 
             sources = best_match.get("source", [])
@@ -154,72 +252,54 @@ class AIModels:
                 "question": best_match["question"],
                 "answer": best_match["answer"],
                 "sources": sources,
-                "category": best_match.get("category", "general")
+                "category": best_match.get(
+                    "category",
+                    "general"
+                )
             }
 
         return None
     
-    def route_question(self, question):
-        question_lower = question.lower()
+# ---------------------------------------------------
+# PIPELINE PRINCIPAL DE RESPUESTA (RAG + GEMINI)
+# ---------------------------------------------------
 
-        faq_patterns = {
-            "contacto": [
-                "telefono",
-                "teléfono",
-                "correo",
-                "contacto",
-                "direccion",
-                "dirección",
-                "ubicacion",
-                "ubicación"
-            ],
-
-            "mision_vision": [
-                "misión",
-                "vision",
-                "visión",
-                "principios"
-            ],
-
-            "empresa": [
-                "qué es riopaila",
-                "quienes son",
-                "quiénes son"
-            ]
-        }
-
-        for category, patterns in faq_patterns.items():
-            for pattern in patterns:
-                if pattern in question_lower:
-                    return "faq"
-
-        return "rag"
-
-    def answer_question(self, question, top_k):
-        self,
-        question,
-        top_k,
-        chat_history=None
-
-        route = self.route_question(question)
-
-        if route == "faq":
-            faq_result = self.get_faq_answer(question)
-
-            if faq_result:
-                return (
-                    faq_result["answer"],
-                    faq_result["sources"]
-                )
-
-        
+    def answer_question(self, question, top_k, chat_history=None):
+        faq_result = self.get_faq_answer(question)
+        if faq_result:
+            return (
+                faq_result["answer"],
+                faq_result["sources"]
+            )
 
         if not self.chunks:
             return "Error: Base de datos no cargada.", []
         
-        question = question.strip().lower()
+        question = self.normalize_text(question)        
+        
+        enhanced_question = question
 
-        embedding = self.get_embedding(question)
+        if chat_history and len(chat_history) > 0:
+            previous_messages = [
+                m["content"]
+                for m in chat_history[-4:]
+            ]
+
+            previous_context = " ".join(
+                previous_messages
+            )
+
+            enhanced_question = self.normalize_text(
+                previous_context + " " + question
+            )
+
+            # enhanced_question = (
+            #     previous_context + " " + question
+            # )
+
+        embedding = self.get_embedding(
+            enhanced_question
+        )
 
         if embedding is None:
             return (
@@ -234,14 +314,68 @@ class AIModels:
 
         q_emb = q_emb / np.linalg.norm(q_emb)
 
+        # scored = sorted(
+        #     [
+        #         (
+        #             self.cosine_similarity(q_emb, c["embedding"]),
+        #             c
+        #         )
+        #         for c in self.chunks
+        #     ],
+        #     key=lambda x: x[0],
+        #     reverse=True
+        # )
+
+        # scored = []
+
+        # for c in self.chunks:
+        #     score = self.cosine_similarity(
+        #         q_emb,
+        #         c["embedding"]
+        #     )
+
+        #     chunk_text = c["text"].lower()
+
+        #     # boost contextual
+        #     if "riopaila" in question.lower():
+        #         if "riopaila" in chunk_text:
+        #             score += 0.05
+
+        #     if "azúcar" in question.lower():
+        #         if "azúcar" in chunk_text:
+        #             score += 0.05
+
+        #     if "etanol" in question.lower():
+        #         if "etanol" in chunk_text:
+        #             score += 0.05
+
+        #     scored.append((score, c))
+
+        scored = []
+
+        question_words = question.lower().split()
+
+        for c in self.chunks:
+
+            score = self.cosine_similarity(
+                q_emb,
+                c["embedding"]
+            )
+
+            chunk_text = self.normalize_text(
+                c["text"]
+            )
+
+            # keyword boosting dinámico
+            for word in question_words:
+
+                if len(word) > 4 and word in chunk_text:
+                    score += 0.01
+
+            scored.append((score, c))
+
         scored = sorted(
-            [
-                (
-                    self.cosine_similarity(q_emb, c["embedding"]),
-                    c
-                )
-                for c in self.chunks
-            ],
+            scored,
             key=lambda x: x[0],
             reverse=True
         )
@@ -250,28 +384,42 @@ class AIModels:
 
         filtered = [
             s for s in top_scored
-            if s[0] > 0.50
+            if s[0] > 0.45
         ]
 
         selected = filtered if filtered else top_scored
+        #--------------------------------------------------
+        print("\nTOP CHUNKS:")
+        for score, chunk in selected:
+            print(score)
+            print(chunk["source"])
+            print(chunk["text"][:300])
+            print("-----")
 
         context = "\n\n".join([
             f"Fuente: {c[1]['source']}\n{c[1]['text']}"
             for c in selected
         ])
 
+        if not selected:
+            return (
+                "No encontré información relevante en la base documental.",
+                []
+            )
+
         if selected[0][0] < 0.35:
             return (
                 "No encontré información relevante en la base documental.",
                 []
-    )
+            )
         
         history_text = ""
 
         if chat_history:
+            recent_history = chat_history[-6:]
             history_text = "\n".join([
                 f"{m['role']}: {m['content']}"
-                for m in chat_history[-6:]
+                for m in recent_history
             ])
 
         prompt = f"""

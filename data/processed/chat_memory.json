@@ -1,0 +1,90 @@
+[
+    {
+        "role": "user",
+        "content": "¿Cuál es la historia de Riopaila Castilla?",
+        "timestamp": "2026-05-16 09:19:58"
+    },
+    {
+        "role": "assistant",
+        "content": "Riopaila Castilla nació en 1918 como un trapiche panelero en la Hacienda Riopaila, ubicada en La Paila, Zarzal, al norte del Valle del Cauca. Años después, con la inauguración del Ingenio Riopaila S.A., inició formalmente la producción industrial de azúcar. Paralelamente, Central Castilla S.A. surgió en Pradera, Valle, también como trapiche panelero antes de convertirse en ingenio azucarero. Con el tiempo, ambas compañías modernizaron sus operaciones, ampliaron su capacidad industrial y fortalecieron su presencia en el sector agroindustrial. En 2007, Riopaila Industrial y Castilla Industrial se fusionaron, dando origen a Riopaila Castilla S.A., hoy enfocada en alimentos, bioenergía y combustibles renovables.",
+        "timestamp": "2026-05-16 09:19:59",
+        "response_time_seconds": 0.0
+    },
+    {
+        "role": "user",
+        "content": "¿Cómo contribuye Riopaila Castilla a los ODS?",
+        "timestamp": "2026-05-16 09:20:18"
+    },
+    {
+        "role": "assistant",
+        "content": "Riopaila Castilla contribuye a los Objetivos de Desarrollo Sostenible (ODS) mediante prácticas ambientales, producción sostenible, gestión eficiente del agua, agricultura regenerativa y proyectos sociales y comunitarios. La compañía aporta a ODS como:\n\n- Hambre cero (ODS 2).\n\n- Agua limpia y saneamiento (ODS 6).\n\n- Energía asequible y no contaminante (ODS 7).\n\n- Trabajo decente y crecimiento económico (ODS 8).\n\n- Industria, innovación e infraestructura (ODS 9).\n\n- Ciudades y comunidades sostenibles (ODS 11).\n\n- Producción y consumo responsables (ODS 12).\n\n- Acción por el clima (ODS 13).\n\n- Vida de ecosistemas terrestres (ODS 15).",
+        "timestamp": "2026-05-16 09:20:18",
+        "response_time_seconds": 0.0
+    },
+    {
+        "role": "user",
+        "content": "Hola me llamo Valentina",
+        "timestamp": "2026-05-16 09:20:36"
+    },
+    {
+        "role": "assistant",
+        "content": "No tengo información sobre eso.",
+        "timestamp": "2026-05-16 09:20:48",
+        "response_time_seconds": 11.4
+    },
+    {
+        "role": "user",
+        "content": "como me llamo?",
+        "timestamp": "2026-05-16 09:21:11"
+    },
+    {
+        "role": "assistant",
+        "content": "No tengo información sobre eso.",
+        "timestamp": "2026-05-16 09:21:17",
+        "response_time_seconds": 5.45
+    },
+    {
+        "role": "user",
+        "content": "¿Qué es Riopaila Castilla?",
+        "timestamp": "2026-05-16 09:21:31"
+    },
+    {
+        "role": "assistant",
+        "content": "Riopaila Castilla es una organización agroindustrial colombiana dedicada a la producción de alimentos, energía y combustibles renovables derivados principalmente de la caña de azúcar y la palma. La compañía desarrolla actividades agrícolas, industriales y comerciales con enfoque en sostenibilidad, innovación y generación de valor para sus grupos de interés y para contribuir al desarrollo sostenible del país.",
+        "timestamp": "2026-05-16 09:21:31",
+        "response_time_seconds": 0.0
+    },
+    {
+        "role": "user",
+        "content": "y que hacen alla?",
+        "timestamp": "2026-05-16 09:21:50"
+    },
+    {
+        "role": "assistant",
+        "content": "Riopaila Castilla se dedica a transformar la tierra en alimento, energía verde y combustible renovable. Producen alimentos como azúcar, mieles, jarabes, mezclas, aceite de palma y ganadería. También generan energía verde a través de la cogeneración y producen combustibles renovables como alcohol carburante, etanol y otros derivados de la caña.",
+        "timestamp": "2026-05-16 09:21:57",
+        "response_time_seconds": 6.67
+    },
+    {
+        "role": "user",
+        "content": "quien soy yo?",
+        "timestamp": "2026-05-16 09:25:45"
+    },
+    {
+        "role": "assistant",
+        "content": "No tengo información sobre eso.",
+        "timestamp": "2026-05-16 09:25:51",
+        "response_time_seconds": 6.37
+    },
+    {
+        "role": "user",
+        "content": "cual es mi nombre?",
+        "timestamp": "2026-05-16 09:26:21"
+    },
+    {
+        "role": "assistant",
+        "content": "No tengo información sobre eso.",
+        "timestamp": "2026-05-16 09:26:26",
+        "response_time_seconds": 4.45
+    }
+]

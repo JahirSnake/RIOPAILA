@@ -330,8 +330,9 @@ def process_file(
                 continue
 
             # eliminar duplicados aproximados
-            normalized = re.sub(r"\s+", " ", chunk.lower()).strip()
-            normalized = chunk.lower()[:800]
+            normalized = re.sub(r"\s+", " ", chunk.lower()).strip()[:800]
+            # normalized = re.sub(r"\s+", " ", chunk.lower()).strip()
+            # normalized = chunk.lower()[:800]
 
             if normalized in seen_chunks:
                 continue
@@ -414,15 +415,18 @@ def process_file(
 if __name__ == "__main__":
 
     input_file = (
-        "RUTA A SCRAPPING.txt"
+        "D:/Users/jagiraldo/OneDrive - Universidad Autonoma de Occidente/"
+        "Escritorio/Taller 1 TAAML/RIOPAILA/data/raw/Riopaila.txt"
     )
 
     context_output = (
-        "RUTA A CHUNKS.json"
+        "D:/Users/jagiraldo/OneDrive - Universidad Autonoma de Occidente/"
+        "Escritorio/Taller 1 TAAML/RIOPAILA/data/processed/chunks_context.json"
     )
 
     faq_output = (
-        "RUTA A FAQ.json"
+        "D:/Users/jagiraldo/OneDrive - Universidad Autonoma de Occidente/"
+        "Escritorio/Taller 1 TAAML/RIOPAILA/data/processed/chunks_faq.json"
     )
 
     process_file(

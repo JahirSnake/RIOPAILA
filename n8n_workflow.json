@@ -1,0 +1,101 @@
+{
+  "name": "Riopaila WhatsApp Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["messages"],
+        "options": {}
+      },
+      "id": "trigger",
+      "name": "WhatsApp RP Recibe",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "Unao3U7b0mVCOBwV",
+          "name": "Riopaila"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.messages[0].text.body }}",
+              "operation": "isNotEmpty",
+              "value2": ""
+            }
+          ]
+        }
+      },
+      "id": "has_msg",
+      "name": "Has Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [450, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://patchwork-destruct-stride.ngrok-free.dev/chat",
+        "authentication": "noAuth",
+        "contentType": "json",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "message",
+              "value": "={{ $json.messages[0].text.body }}"
+            },
+            {
+              "name": "user_id",
+              "value": "=whatsapp:{{ $json.messages[0].from }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "api_call",
+      "name": "Call Riopaila API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [650, 450]
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "1096554670217076",
+        "recipientPhoneNumber": "={{ $json.user_id.replace('whatsapp:', '') }}",
+        "textBody": "={{ $json.response }}",
+        "additionalFields": {}
+      },
+      "id": "whatsapp_send",
+      "name": "Send message",
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1.1,
+      "position": [850, 450],
+      "credentials": {
+        "whatsAppApi": {
+          "id": "7dHPNseCn8QbKxrc",
+          "name": "Riopaila"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "WhatsApp RP Recibe": {
+      "main": [[{"node": "Has Message?", "type": "main", "index": 0}]]
+    },
+    "Has Message?": {
+      "main": [
+        [{"node": "Call Riopaila API", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "Call Riopaila API": {
+      "main": [[{"node": "Send message", "type": "main", "index": 0}]]
+    }
+  }
+}

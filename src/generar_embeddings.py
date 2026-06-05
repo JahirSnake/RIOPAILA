@@ -6,12 +6,12 @@ import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from tqdm import tqdm
 
+
 # ---------------------------
 # CONFIG
 # ---------------------------
-INPUT_PATH = r"RUTA A CHUNKS.JSON"
-
-OUTPUT_PATH = r"RUTA DONDE SE GUARDAN EMBEDDINGS.JSON"
+INPUT_PATH = r"C:/Users/jahir/OneDrive/Desktop/Taller 1 TAAML/RIOPAILA/data/processed/chunks_context.json"
+OUTPUT_PATH = r"C:/Users/jahir/OneDrive/Desktop/Taller 1 TAAML/RIOPAILA/data/processed/chunks_embeddings.json"
 
 #MODEL = "nomic-embed-text"
 MODEL = "mxbai-embed-large"
