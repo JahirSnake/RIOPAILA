@@ -121,7 +121,7 @@ class RiopailaAgent:
             self.faqs = json.loads(faq_path.read_text(encoding="utf-8"))
 
         # Checkpointer (PostgreSQL)
-        conn_string = "postgresql://postgres:pass@localhost:5432/postgres"
+        conn_string = os.getenv("DATABASE_URL") or "postgresql://postgres:pass@localhost:5432/postgres"
         pg_conn = Connection.connect(
             conn_string, autocommit=True, prepare_threshold=0
         )
