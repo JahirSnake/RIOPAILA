@@ -1,21 +1,25 @@
 import json
 import os
 import re
+import time
 import uuid
 import unicodedata
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, TypedDict
 
 from dotenv import load_dotenv
 from langchain.tools import tool
 from langchain.chat_models import init_chat_model
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings
 from pydantic import BaseModel, Field
 from psycopg import Connection
 from langgraph.checkpoint.postgres import PostgresSaver
 from langgraph.graph import add_messages
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
+from langchain.agents.middleware import HumanInTheLoopMiddleware
 
 env_path = Path(__file__).resolve().parent / ".env"
 load_dotenv(env_path)
@@ -30,6 +34,7 @@ if os.getenv("GEMINI_API_KEY"):
 BASE = Path(__file__).resolve().parent.parent
 PROFILES_PATH = BASE / "data" / "processed" / "user_profiles.json"
 CONV_DIR = BASE / "data" / "processed" / "conversations"
+LOG_DIR = BASE / "data" / "logs"
 
 STOPWORDS = {
     "que", "como", "cual", "cuál", "donde",
@@ -129,12 +134,20 @@ class RiopailaAgent:
         checkpointer.setup()
 
         # Build agent
-        self.agent = create_react_agent(
+        self.hitl = HumanInTheLoopMiddleware(
+            interrupt_on={
+                "get_faq_answer": False,
+                "search_embeddings": True,
+                "save_user_name": True,
+            }
+        )
+        self.agent = create_agent(
             model=self.llm,
             tools=[self._faq_tool(), self._search_tool(), self._save_name_tool()],
-            prompt=self._build_system_prompt(),
+            system_prompt=self._build_system_prompt(),
             state_schema=AgentState,
             checkpointer=checkpointer,
+            middleware=[self.hitl],
         )
 
     def _build_system_prompt(self) -> str:
@@ -145,6 +158,7 @@ Eres el asistente corporativo oficial de Riopaila Castilla.
 {greeting}
 
 INSTRUCCIONES:
+- Cuando te saluden responde: "Hola, soy el asistente virtual de Riopaila Castilla. Estoy aquí para ayudarte. ¿Qué deseas saber sobre nuestra compañía?"
 - Para preguntas comunes (contacto, historia, misión, qué es, qué hacen, presidente, ubicación, etc.) usa la herramienta get_faq_answer.
 - Si la FAQ responde "NO_FAQ_MATCH", entonces usa search_embeddings para buscar en la base documental.
 - Cuando el usuario diga su nombre (ej: "me llamo Juan", "soy María"), usa save_user_name para guardarlo.
@@ -224,16 +238,11 @@ INSTRUCCIONES:
                     f"Fuente: {d.metadata.get('loc', '')}\n{d.page_content}"
                     for d in docs
                 )
-                prompt = f"""
-Basado exclusivamente en el siguiente contexto, responde la pregunta.
-
-Contexto:
-{context}
-
-Pregunta: {query}
-
-Respuesta:"""
-                resp = self.structured_llm.invoke(prompt)
+                prompt = ChatPromptTemplate.from_messages([
+                    ("human", "Basado exclusivamente en el siguiente contexto, responde la pregunta.\n\nContexto:\n{context}\n\nPregunta: {query}\n\nRespuesta:"),
+                ])
+                chain = prompt | self.structured_llm
+                resp = chain.invoke({"context": context, "query": query})
                 partes = [resp.respuesta]
                 if resp.fuentes:
                     partes.append("\n\nFuentes: " + ", ".join(resp.fuentes[:3]))
@@ -255,10 +264,31 @@ Respuesta:"""
                 return "Lo siento, no pude guardar tu nombre en este momento. ¿Puedes intentarlo de nuevo?"
         return save_user_name
 
+    # ---------- Logging (t-SNE analysis) ----------
+    def _log_conversation(self, query: str, response: str, thread_id: str, error: bool = False):
+        try:
+            LOG_DIR.mkdir(parents=True, exist_ok=True)
+            path = LOG_DIR / "conversations.jsonl"
+            entry = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "user_id": self.user_id,
+                "thread_id": thread_id,
+                "query": query,
+                "response": response,
+                "error": error,
+                "has_name": bool(self.preferences.get("name")),
+            }
+            with open(path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        except Exception:
+            pass
+
     # ---------- Public API ----------
     def ask(self, query: str, thread_id: str = None) -> str:
         thread_id = thread_id or "default"
+        t0 = time.time()
         try:
+            from langgraph.types import Command
             result = self.agent.invoke(
                 {
                     "messages": [{"role": "user", "content": query}],
@@ -268,16 +298,29 @@ Respuesta:"""
                 },
                 {"configurable": {"thread_id": thread_id}},
             )
+            state = self.agent.get_state({"configurable": {"thread_id": thread_id}})
+            while state.next:
+                interrupts = state.values.get("__interrupt__", [])
+                num_decisions = len(interrupts[0].value.action_requests) if interrupts else 1
+                result = self.agent.invoke(
+                    Command(resume={"decisions": [{"type": "approve"} for _ in range(num_decisions)]}),
+                    {"configurable": {"thread_id": thread_id}},
+                )
+                state = self.agent.get_state({"configurable": {"thread_id": thread_id}})
             content = result["messages"][-1].content
             if isinstance(content, list):
-                return "".join(b.get("text", "") for b in content)
+                content = "".join(b.get("text", "") for b in content)
+            self._log_conversation(query, content, thread_id)
             return content
         except Exception as e:
-            return f"Error: {e}"
+            err = f"Error: {e}"
+            self._log_conversation(query, err, thread_id, error=True)
+            return err
 
     def stream(self, query: str, thread_id: str = None):
         thread_id = thread_id or "default"
         try:
+            from langgraph.types import Command
             for chunk in self.agent.stream(
                 {
                     "messages": [{"role": "user", "content": query}],
@@ -291,6 +334,19 @@ Respuesta:"""
                     msg = chunk["messages"][-1]
                     if hasattr(msg, "content") and msg.content:
                         yield msg.content
+            state = self.agent.get_state({"configurable": {"thread_id": thread_id}})
+            while state.next:
+                interrupts = state.values.get("__interrupt__", [])
+                num_decisions = len(interrupts[0].value.action_requests) if interrupts else 1
+                for chunk in self.agent.stream(
+                    Command(resume={"decisions": [{"type": "approve"} for _ in range(num_decisions)]}),
+                    {"configurable": {"thread_id": thread_id}},
+                ):
+                    if isinstance(chunk, dict) and "messages" in chunk:
+                        msg = chunk["messages"][-1]
+                        if hasattr(msg, "content") and msg.content:
+                            yield msg.content
+                state = self.agent.get_state({"configurable": {"thread_id": thread_id}})
         except Exception as e:
             yield f"Error: {e}"
 
