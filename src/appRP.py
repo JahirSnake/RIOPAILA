@@ -3,33 +3,36 @@ from Agent_models import RiopailaAgent
 from datetime import datetime
 import time
 import uuid
+import base64
 
 st.set_page_config(page_title="Asistente Riopaila Castilla", page_icon="🌿", layout="wide")
 
 st.markdown("""
 <style>
 
+/* Tema claro (default) */
 :root {
-    --chat-text-color: #079599;
+    --chat-text-color: #000000;
 }
 
+/* Tema oscuro */
 @media (prefers-color-scheme: dark) {
     :root {
-        --chat-text-color: #079599;
+        --chat-text-color: #FFFFFF;
     }
 }
 
 /* Fondo general */
 .stApp {
-    background-color: #FFFFFF;
-    color: #294221;
+    background-color: var(--background-color);
+    color: var(--chat-text-color);
 }
 
 /* Chat container */
 .stChatMessage {
-    background-color: #F8FAF9 !important;
+    background-color: var(--background-color) !important;
     border-radius: 15px !important;
-    border: 1px solid #E0EADD !important;
+    border: 1px solid var(--border-color) !important;
     margin-bottom: 10px;
 }
 
@@ -38,11 +41,38 @@ st.markdown("""
     color: var(--chat-text-color) !important;
 }
 
-/* También markdown dentro del chat */
 [data-testid="stChatMessageContent"] p,
 [data-testid="stChatMessageContent"] span,
 [data-testid="stChatMessageContent"] div {
     color: var(--chat-text-color) !important;
+}
+
+/* Avatares del mismo tamaño */
+[data-testid="stChatMessage"] [data-testid="stImage"] img,
+[data-testid="stChatMessage"] img {
+    width: 40px !important;
+    height: 40px !important;
+    object-fit: contain !important;
+    border-radius: 50% !important;
+}
+
+/* WhatsApp icon centrado sobre el input */
+.whatsapp-link {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+.whatsapp-link a {
+    display: inline-block;
+    line-height: 0;
+}
+.whatsapp-link img {
+    width: 32px;
+    height: 32px;
+    transition: transform 0.2s;
+}
+.whatsapp-link img:hover {
+    transform: scale(1.15);
 }
 
 </style>
@@ -89,7 +119,16 @@ if "messages" not in st.session_state:
 # ---------------------------
 # SIDEBAR
 # ---------------------------
+with open("src/assets/riopailaLogo2.png", "rb") as f:
+    _logo_b64 = base64.b64encode(f.read()).decode()
 with st.sidebar:
+    st.markdown(
+        '<div style="display: flex; justify-content: center; margin-bottom: 15px;">'
+        '<div style="background: white; border-radius: 16px; padding: 12px; display: inline-flex;">'
+        '<img src="data:image/png;base64,{}" width="120" style="display: block;">'
+        '</div></div>'.format(_logo_b64),
+        unsafe_allow_html=True
+    )
     st.markdown('<div class="brand-title">RIOPAILA CASTILLA</div>', unsafe_allow_html=True)
     st.markdown('<div class="brand-subtitle">Agroindustria Sostenible</div>', unsafe_allow_html=True)
 
@@ -126,12 +165,25 @@ with st.sidebar:
 # ---------------------------
 # MAIN
 # ---------------------------
-st.markdown("<h1 style='text-align: center;'>Asistente Estratégico Corporativo Riopaila Castilla</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #17979C;'>Consulta inteligente con memoria persistente</p>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; margin-top: 5px; margin-bottom: 10px;'>Asistente Estrategico Corporativo Riopaila Castilla</h1>", unsafe_allow_html=True)
+
+USER_AVATAR = "src/assets/userLogo.png"
+ASSISTANT_AVATAR = "src/assets/riopailaLogo.png"
 
 for m in st.session_state.messages:
-    with st.chat_message(m["role"], avatar="🎋" if m["role"] == "assistant" else "👤"):
+    avatar = ASSISTANT_AVATAR if m["role"] == "assistant" else USER_AVATAR
+    with st.chat_message(m["role"], avatar=avatar):
         st.markdown(m["content"])
+
+# WhatsApp icon centrado sobre el input
+with open("src/assets/WhatsApp_icon.png", "rb") as f:
+    wa_b64 = base64.b64encode(f.read()).decode()
+st.markdown(
+    f'<div class="whatsapp-link">'
+    f'<a href="https://wa.me/15556673830" target="_blank">'
+    f'<img src="data:image/png;base64,{wa_b64}" alt="WhatsApp"></a></div>',
+    unsafe_allow_html=True
+)
 
 query = st.chat_input("¿Qué desea consultar sobre Riopaila Castilla?")
 final_query = faq_clicked if faq_clicked else query
@@ -140,10 +192,10 @@ if final_query:
     if not st.session_state.messages or st.session_state.messages[-1]["content"] != final_query:
         st.session_state.messages.append({"role": "user", "content": final_query, "timestamp": datetime.now().isoformat()})
 
-    with st.chat_message("user", avatar="👤"):
+    with st.chat_message("user", avatar=USER_AVATAR):
         st.markdown(final_query)
 
-    with st.chat_message("assistant", avatar="🎋"):
+    with st.chat_message("assistant", avatar=ASSISTANT_AVATAR):
         with st.spinner("Analizando documentos y preparando respuesta..."):
             try:
                 start = time.time()
