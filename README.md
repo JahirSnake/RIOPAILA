@@ -22,8 +22,8 @@ WhatsApp --> N8N Cloud --> ngrok --> FastAPI (api.py)
 ## Tecnologias
 
 - **Python 3.13+** con FastAPI + Uvicorn
-- **LangGraph** (agente con herramientas: `get_faq_answer`, `search_embeddings`, `save_user_name`)
-- **LangChain**: ChromaDB, OllamaEmbeddings, chat models
+- **LangChain**: `create_agent`, `init_chat_model`, `HumanInTheLoopMiddleware`, ChromaDB, OllamaEmbeddings, `ChatPromptTemplate`
+- **LangGraph**: solo `PostgresSaver` como checkpointer
 - **Gemini 2.5 Flash**: LLM principal
 - **Ollama** + `mxbai-embed-large`: embeddings local
 - **ChromaDB**: base vectorial persistida en disco
@@ -42,27 +42,31 @@ RIOPAILA/
 ├── data/
 │   ├── raw/
 │   │   └── Riopaila.txt              # Texto scrapeado del sitio web
-│   └── processed/
-│       ├── chroma.sqlite3             # Indice vectorial ChromaDB
-│       ├── chunks_faq.json            # 12 preguntas frecuentes
-│       ├── chunks_context.json        # Fragmentos de texto chunked
-│       ├── chunks_embeddings.json     # Embeddings precomputados (legacy)
-│       ├── chat_memory.json           # Memoria de chat (legacy)
-│       ├── user_profiles.json         # Perfiles de usuario (nombres)
-│       ├── conversations/             # Historial de conversaciones
-│       └── 402a0363-.../              # Particiones internas de Chroma
+│   ├── processed/
+│   │   ├── chroma.sqlite3             # Indice vectorial ChromaDB
+│   │   ├── chunks_faq.json            # 12 preguntas frecuentes
+│   │   ├── chunks_context.json        # Fragmentos de texto chunked
+│   │   ├── user_profiles.json         # Perfiles de usuario (nombres)
+│   │   └── .../                       # Particiones internas de Chroma
+│   └── logs/
+│       ├── conversations.jsonl        # Log de conversaciones para t-SNE
+│       └── tsne_clusters.png          # Grafico generado por t-SNE
 │
 ├── src/
 │   ├── api.py                         # Servidor FastAPI
 │   ├── Agent_models.py                # Clase RiopailaAgent (core)
+│   ├── appRP.py                       # Streamlit UI (usa RiopailaAgent)
 │   ├── app.py                         # Streamlit UI legacy (usa AIModels)
-│   ├── appRP.py                       # Streamlit UI moderna (usa RiopailaAgent)
 │   ├── ai_models.py                   # Clase AIModels legacy
-│   ├── .env                           # API keys (no incluir en git)
 │   ├── chunks_embeddingsRP.py         # Pipeline: scraping -> Chroma
 │   ├── scraping.py                    # Pipeline: web scraping
 │   ├── preprocessing.py               # Pipeline: limpieza de texto
+│   ├── tsne_analysis.py               # Analisis de clusters con t-SNE
+│   ├── .env                           # API keys (no incluir en git)
 │   └── generar_embeddings.py          # Pipeline: embeddings legacy
+│
+├── notebooks/
+│   └── tsne_analysis.ipynb            # Notebook de analisis t-SNE
 │
 ├── n8n_workflow.json                  # Workflow N8N para WhatsApp
 ├── pyproject.toml                     # Dependencias del proyecto
@@ -102,13 +106,13 @@ Pipeline anterior que genera `chunks_embeddings.json` usado por la clase `AIMode
 ## Componentes del Sistema
 
 ### RiopailaAgent (src/Agent_models.py)
-Clase principal del agente conversacional. Utiliza LangGraph `create_react_agent` con tres herramientas:
+Clase principal del agente conversacional. Utiliza `create_agent` de `langchain.agents` con tres herramientas, `HumanInTheLoopMiddleware` para control de flujos criticos, y `PostgresSaver` para persistencia en PostgreSQL:
 
-- **`get_faq_answer`**: Busca en `chunks_faq.json` usando keyword matching. Respuesta inmediata sin llamar al LLM. Si no encuentra, devuelve `NO_FAQ_MATCH`.
-- **`search_embeddings`**: Consulta ChromaDB con `similarity_search(k=8)`, construye un prompt con el contexto y utiliza `with_structured_output(RAGResponse)` para generar respuesta estructurada con `respuesta` y `fuentes`.
-- **`save_user_name`**: Guarda el nombre del usuario en `user_profiles.json` para recordarlo en futuras conversaciones.
+- **`get_faq_answer`** (args_schema=FAQInput): Busca en `chunks_faq.json` usando keyword matching. Respuesta inmediata sin llamar al LLM. Si no encuentra, devuelve `NO_FAQ_MATCH`.
+- **`search_embeddings`** (args_schema=SearchInput): Consulta ChromaDB con `similarity_search(k=8)`, construye un `ChatPromptTemplate` con el contexto y utiliza `with_structured_output(RAGResponse)` para generar respuesta estructurada con `respuesta` y `fuentes`.
+- **`save_user_name`** (args_schema=SaveNameInput): Guarda el nombre del usuario en `user_profiles.json` para recordarlo en futuras conversaciones.
 
-El estado del agente se persiste via `PostgresSaver` en PostgreSQL (checkpoints, blobs, writes).
+Cada herramienta tiene manejo de errores con try/except y respuestas corteses ante fallos. Todas las conversaciones se registran en `data/logs/conversations.jsonl` para analisis posterior con t-SNE.
 
 ### FastAPI (src/api.py)
 Servidor REST con dos endpoints:
@@ -244,6 +248,31 @@ streamlit run src/appRP.py
 
 ---
 
+## Analisis de Conversaciones con t-SNE
+
+El proyecto incluye un sistema de logging y analisis para visualizar clusters de conversaciones:
+
+### Pipeline de logging
+
+Cada llamada a `RiopailaAgent.ask()` registra automaticamente: timestamp, user_id, thread_id, consulta, respuesta, error (si ocurrio) y si el usuario tenia nombre guardado. El archivo `data/logs/conversations.jsonl` es append-only.
+
+### Generacion del grafico t-SNE
+
+```bash
+python src/tsne_analysis.py
+```
+
+El script:
+1. Carga todas las entradas de `conversations.jsonl`.
+2. Genera embeddings con Ollama (`mxbai-embed-large`).
+3. Aplica t-SNE (sklearn.manifold.TSNE) para reducir a 2 dimensiones.
+4. Colorea los puntos segun exito/error.
+5. Guarda el grafico en `data/logs/tsne_clusters.png`.
+
+Esto permite identificar clusters como preguntas frecuentes, quejas, consultas fallidas, etc.
+
+---
+
 ## Endpoints de la API
 
 | Metodo | Ruta | Descripcion | Body |
@@ -266,31 +295,33 @@ Respuesta de `/chat`:
 1. El usuario envia un mensaje (WhatsApp, Streamlit o API directa).
 2. Si es por WhatsApp, N8N recibe el mensaje, lo reenvia a la API via ngrok.
 3. La API invoca `RiopailaAgent.ask()`.
-4. LangGraph ejecuta el agente:
-   - Decide que herramienta usar segun la pregunta.
-   - `get_faq_answer`: busca en las 12 FAQs (coincidencia de keywords). Si encuentra, devuelve respuesta inmediata sin LLM.
-   - `search_embeddings`: consulta ChromaDB, construye contexto, invoca Gemini con `with_structured_output()`.
-   - `save_user_name`: si el usuario dice su nombre, lo guarda en `user_profiles.json`.
-5. La respuesta se devuelve al usuario via el mismo canal.
+4. `create_agent` ejecuta el agente con `HumanInTheLoopMiddleware`:
+   - `get_faq_answer` (interrupcion desactivada): busca en las 12 FAQs por keywords. Respuesta inmediata sin LLM.
+   - `search_embeddings` (interrupcion activada, auto-aprobada): consulta ChromaDB, construye `ChatPromptTemplate` con contexto, invoca Gemini con `with_structured_output(RAGResponse)`.
+   - `save_user_name` (interrupcion activada, auto-aprobada): guarda el nombre en `user_profiles.json`.
+5. Cada turno se registra en `data/logs/conversations.jsonl` para analisis t-SNE.
+6. La respuesta se devuelve al usuario via el mismo canal.
 
 ---
 
 ## Persistencia
 
-- **PostgreSQL (via PostgresSaver)**: Almacena checkpoints del agente LangGraph (estado de la ejecucion, mensajes, writes). Permite retomar conversaciones.
+- **PostgreSQL (via PostgresSaver)**: Almacena checkpoints del agente LangChain (estado de la ejecucion, mensajes, writes). Permite retomar conversaciones.
 - **user_profiles.json**: Nombres de usuario guardados entre sesiones.
-- **conversations/**: Historial completo de conversaciones en JSON por usuario.
+- **conversations.jsonl**: Registro de todas las consultas (timestamp, user_id, query, response, error) para analisis con t-SNE.
 - **ChromaDB**: Base vectorial persistida en `data/processed/`.
 
 ---
 
 ## Limitaciones
 
+- Todas las API keys de Gemini generadas hasta la fecha han sido revocadas por Google (403 PERMISSION_DENIED). Se requiere una nueva key bajo un proyecto de Google Cloud con billing habilitado.
 - El modelo `mxbai-embed-large` tiene limite de 512 tokens; el chunk size de 800 caracteres se mantiene dentro de ese limite.
 - Cuota gratuita de Gemini: aproximadamente 20 requests/dia para `gemini-2.5-flash`. El FAQ fast-path no consume esta cuota.
 - Ollama debe estar ejecutandose localmente.
 - ngrok requiere conexion a internet y puede ser bloqueado por firewalls corporativos (la URL `ngrok-free.dev` esta categorizada como "Proxy Avoidance" por FortiGuard).
 - El agente solo responde informacion contenida en los documentos indexados.
+- El analisis t-SNE requiere datos acumulados; con pocas conversaciones el grafico no muestra clusters significativos.
 
 ---
 
